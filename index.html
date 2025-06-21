@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Movie Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-film"></i>
+                <h1>AI Movie Generator</h1>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <span>Upload Image</span>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <span>Style Image</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <span>Story Prompt</span>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <span>Edit Story</span>
+                </div>
+                <div class="progress-step" data-step="5">
+                    <div class="step-number">5</div>
+                    <span>Generate Assets</span>
+                </div>
+                <div class="progress-step" data-step="6">
+                    <div class="step-number">6</div>
+                    <span>Create Movie</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Step 1: Upload Image -->
+        <section class="step-content active" id="step-1">
+            <div class="step-header">
+                <h2>Upload or Generate Your Image</h2>
+                <p>Start by choosing how you want to create your base image</p>
+            </div>
+            
+            <div class="upload-section">
+                <!-- Image Source Selection -->
+                <div class="image-source-tabs">
+                    <button class="source-tab active" data-source="upload">
+                        <i class="fas fa-upload"></i>
+                        Upload Image
+                    </button>
+                    <button class="source-tab" data-source="generate">
+                        <i class="fas fa-magic"></i>
+                        Generate Image
+                    </button>
+                </div>
+
+                <!-- Upload Image Section -->
+                <div class="image-source-content active" id="uploadSection">
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Drop your image here or click to browse</h3>
+                        <p>Support: JPG, PNG, GIF (Max 10MB)</p>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                    </div>
+                </div>
+
+                <!-- Generate Image Section -->
+                <div class="image-source-content" id="generateSection">
+                    <div class="image-generate-area">
+                        <i class="fas fa-magic"></i>
+                        <h3>Describe the image you want to generate</h3>
+                        <div class="form-group">
+                            <textarea id="imagePrompt" placeholder="Describe the image you want to create (e.g., 'A young girl with a red bicycle in a magical forest')" rows="3"></textarea>
+                        </div>
+                        <button class="btn-primary" id="generateImageBtn">
+                            <i class="fas fa-magic"></i>
+                            Generate Image
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Image Preview (shared) -->
+                <div class="image-preview" id="imagePreview" style="display: none;">
+                    <img id="previewImg" src="" alt="Preview">
+                    <div class="image-info">
+                        <button class="btn-secondary" id="changeImageBtn">Change Image</button>
+                        <button class="btn-primary" id="proceedToStyleBtn">
+                            <i class="fas fa-arrow-right"></i>
+                            Continue to Styling
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Style Image -->
+        <section class="step-content" id="step-2">
+            <div class="step-header">
+                <h2>Style Your Image</h2>
+                <p>Apply different styles to your image until you get the perfect look</p>
+            </div>
+
+            <div class="style-section">
+                <div class="image-comparison">
+                    <div class="image-panel">
+                        <h4>Original Image</h4>
+                        <div class="image-container">
+                            <img id="originalImg" src="" alt="Original Image">
+                        </div>
+                    </div>
+                    
+                    <div class="image-panel">
+                        <h4>Styled Image</h4>
+                        <div class="image-container">
+                            <img id="styledImg" src="" alt="Styled Image" style="display: none;">
+                            <div class="placeholder-message" id="stylePlaceholder">
+                                <i class="fas fa-magic"></i>
+                                <p>Apply a style to see the result here</p>
+                            </div>
+                        </div>
+                        <div class="image-actions" id="styledImageActions" style="display: none;">
+                            <button class="btn-secondary btn-small" id="useAsBaseBtn">
+                                <i class="fas fa-edit"></i>
+                                Use as Base for Next Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="style-controls">
+                    <div class="form-group">
+                        <label for="stylePrompt">Style Description</label>
+                        <textarea id="stylePrompt" placeholder="Describe the style you want (e.g., 'watercolor painting', 'anime style', 'photorealistic', 'vintage photograph')" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="aspectRatio">Aspect Ratio</label>
+                            <select id="aspectRatio">
+                                <option value="16:9">16:9 (Widescreen)</option>
+                                <option value="4:3">4:3 (Standard)</option>
+                                <option value="1:1">1:1 (Square)</option>
+                                <option value="9:16">9:16 (Portrait)</option>
+                            </select>
+                        </div>
+                        <div class="form-group half style-buttons">
+                            <button class="btn-primary" id="applyStyleBtn">
+                                <i class="fas fa-magic"></i>
+                                Apply Style
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="quick-styles">
+                        <h4>Quick Style Options</h4>
+                        <div class="style-presets">
+                            <button class="style-preset" data-style="watercolor painting">Watercolor</button>
+                            <button class="style-preset" data-style="anime style">Anime</button>
+                            <button class="style-preset" data-style="oil painting">Oil Painting</button>
+                            <button class="style-preset" data-style="photorealistic">Photorealistic</button>
+                            <button class="style-preset" data-style="cartoon style">Cartoon</button>
+                            <button class="style-preset" data-style="vintage photograph">Vintage</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" id="backToStep1">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Image
+                    </button>
+                    <button class="btn-primary" id="proceedToStoryBtn" disabled>
+                        <i class="fas fa-arrow-right"></i>
+                        Continue to Story
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Story Prompt -->
+        <section class="step-content" id="step-3">
+            <div class="step-header">
+                <h2>Create Your Story</h2>
+                <p>Now describe the kind of story you want to create with your styled image</p>
+            </div>
+
+            <div class="story-prompt-section">
+                <div class="story-image-preview">
+                    <img id="storyImagePreview" src="" alt="Your Styled Image">
+                </div>
+
+                <div class="story-form">
+                    <div class="form-group">
+                        <label for="storyPrompt">Story Prompt</label>
+                        <textarea id="storyPrompt" placeholder="Describe the kind of story you want to create (e.g., 'A magical adventure where the character discovers a hidden world...')" rows="4"></textarea>
+                    </div>
+
+                    <!-- Audio Recording Section -->
+                    <div class="form-group">
+                        <label>Voice Sample (Optional)</label>
+                        <p class="form-description">Record your voice to customize the narration style</p>
+                        <div class="audio-recorder">
+                            <button type="button" class="btn-secondary" id="recordBtn">
+                                <i class="fas fa-microphone"></i>
+                                Start Recording
+                            </button>
+                            <button type="button" class="btn-secondary" id="stopRecordBtn" style="display: none;" disabled>
+                                <i class="fas fa-stop"></i>
+                                Stop Recording
+                            </button>
+                            <span id="recordingTime" class="recording-time" style="display: none;">00:00</span>
+                        </div>
+                        <div class="audio-preview" id="audioPreview" style="display: none;">
+                            <audio id="audioPlayer" controls></audio>
+                            <div class="audio-actions">
+                                <button type="button" class="btn-secondary btn-small" id="playRecordingBtn">
+                                    <i class="fas fa-play"></i>
+                                    Play
+                                </button>
+                                <button type="button" class="btn-secondary btn-small" id="deleteRecordingBtn">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-secondary" id="backToStep2">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Styling
+                        </button>
+                        <button class="btn-primary btn-large" id="generateStoryBtn" disabled>
+                            <i class="fas fa-magic"></i>
+                            Generate Story
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Edit Story -->
+        <section class="step-content" id="step-4">
+            <div class="step-header">
+                <h2>Review & Edit Your Story</h2>
+                <p>Make any changes to your generated story before creating the movie</p>
+            </div>
+
+            <div class="story-editor">
+                <div class="story-meta">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="storyTitle">Title</label>
+                            <input type="text" id="storyTitle">
+                        </div>
+                        <div class="form-group">
+                            <label for="storyGenre">Genre</label>
+                            <input type="text" id="storyGenre">
+                        </div>
+                        <div class="form-group">
+                            <label for="storyTone">Tone</label>
+                            <input type="text" id="storyTone">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenes-container" id="scenesContainer">
+                    <!-- Scenes will be dynamically loaded here -->
+                </div>
+
+                <div class="form-group">
+                    <label for="storyMoral">Moral (Optional)</label>
+                    <textarea id="storyMoral" rows="2" placeholder="What lesson should this story teach?"></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" id="backToStep3">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Story
+                    </button>
+                    <button class="btn-primary" id="generateAssetsBtn">
+                        <i class="fas fa-images"></i>
+                        Generate Images & Audio
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Generate Assets -->
+        <section class="step-content" id="step-5">
+            <div class="step-header">
+                <h2>Generating Images & Audio</h2>
+                <p>Creating visuals and narration for each scene...</p>
+            </div>
+
+            <div class="generation-progress">
+                <div class="progress-circle">
+                    <div class="progress-ring">
+                        <svg width="120" height="120">
+                            <circle cx="60" cy="60" r="50" stroke="#e0e0e0" stroke-width="8" fill="none"/>
+                            <circle cx="60" cy="60" r="50" stroke="#6366f1" stroke-width="8" fill="none" 
+                                    stroke-dasharray="314" stroke-dashoffset="314" id="progressCircle"/>
+                        </svg>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressPercent">0%</span>
+                        <small id="progressStatus">Starting...</small>
+                    </div>
+                </div>
+                
+                <div class="generation-log" id="generationLog">
+                    <!-- Progress messages will appear here -->
+                </div>
+            </div>
+
+            <div class="assets-preview" id="assetsPreview" style="display: none;">
+                <h3>Generated Assets</h3>
+                <div class="assets-grid" id="assetsGrid">
+                    <!-- Generated assets will be shown here -->
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn-primary" id="createMovieBtn">
+                        <i class="fas fa-play"></i>
+                        Create Movie
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: Create Movie -->
+        <section class="step-content" id="step-6">
+            <div class="step-header">
+                <h2>Create Your Movie</h2>
+                <p>Choose how you want to create your final movie</p>
+            </div>
+
+            <div class="movie-options">
+                <div class="option-card" data-option="slideshow">
+                    <div class="option-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3>Slideshow Movie</h3>
+                    <p>Create a movie using images with audio narration</p>
+                    <span class="duration">⚡ Fast generation</span>
+                </div>
+
+                <div class="option-card" data-option="video">
+                    <div class="option-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Video Movie</h3>
+                    <p>Generate animated videos for each scene with AI</p>
+                    <span class="duration">🎬 Higher quality (takes longer)</span>
+                </div>
+            </div>
+
+            <div class="movie-generation" id="movieGeneration" style="display: none;">
+                <div class="generation-status">
+                    <div class="spinner"></div>
+                    <h3 id="generationTitle">Creating your movie...</h3>
+                    <p id="generationDescription">This may take a few minutes</p>
+                </div>
+            </div>
+
+            <div class="movie-result" id="movieResult" style="display: none;">
+                <div class="result-content">
+                    <div class="result-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Your Movie is Ready!</h3>
+                    <p>Your AI-generated movie has been created successfully</p>
+                    
+                    <div class="video-player-container" id="videoPlayerContainer" style="display: none;">
+                        <video class="video-player" id="moviePlayer" controls>
+                            <source src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-info">
+                            <span id="videoTitle">Your Movie</span>
+                            <span id="videoDuration">Duration: --:--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="btn-primary" id="downloadMovieBtn">
+                            <i class="fas fa-download"></i>
+                            Download Movie
+                        </button>
+                        <button class="btn-secondary" id="watchOnlineBtn" style="display: none;">
+                            <i class="fas fa-play"></i>
+                            Watch Online
+                        </button>
+                        <button class="btn-secondary" id="createNewBtn">
+                            <i class="fas fa-plus"></i>
+                            Create New Movie
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons" id="movieActionButtons">
+                <button class="btn-secondary" id="backToStep5">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3 id="loadingTitle">Processing...</h3>
+                <p id="loadingDescription">Please wait while we process your request</p>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div class="modal" id="errorModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Error</h3>
+                    <button class="close-modal" id="closeErrorModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage">An error occurred. Please try again.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" id="closeErrorBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
