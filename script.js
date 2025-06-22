@@ -798,6 +798,13 @@ function showAssetsPreview(assets) {
         `;
         assetsGrid.appendChild(card);
     });
+
+    // Reveal the assets preview section and scroll into view
+    document.getElementById('assetsPreview').style.display = 'block';
+    document.getElementById('createMovieBtn').disabled = false;
+
+    // Smooth scroll to the preview so the user notices it
+    document.getElementById('assetsPreview').scrollIntoView({ behavior: 'smooth' });
 }
 
 function selectMovieOption(option) {

@@ -19,6 +19,8 @@ import uuid
 from pathlib import Path
 from tqdm import tqdm
 import threading
+import wave
+import struct
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -194,7 +196,7 @@ def edit_image(image: Image.Image, prompt: str, aspect_ratio: str = "16:9") -> I
                 polling_url,
                 headers={
                     'accept': 'application/json',
-                    'x-key': os.environ.get("BFL_API_KEY"),
+                    'x-key': os.environ.get("FLUX_API_KEY"),
                 },
                 params={'id': request_id},
             ).json()
@@ -570,27 +572,50 @@ async def generate_assets(
             print(f"Generating assets for {len(story['scenes'])} scenes")
             
             for i, scene in enumerate(story["scenes"]):
-                print(f"Processing scene {i+1}/{len(story['scenes'])}: {scene['heading']}")
-                
-                # Generate audio
-                audio_url = generate_audio(scene["text"], recorded_audio_path)
-                audio_path = session_dir / f"scene_{i}_audio.wav"
-                save_audio(audio_url, str(audio_path))
-                print(f"Audio saved: {audio_path}")
-                
-                # Generate image
-                scene_image = edit_image(current_image, scene["image_prompt"], aspect_ratio)
-                image_path = session_dir / f"scene_{i}_image.jpeg"
-                scene_image.save(image_path)
-                print(f"Image saved: {image_path}")
-                
-                scene_assets.append({
-                    "scene_id": i,
-                    "image_path": str(image_path),
-                    "audio_path": str(audio_path)
-                })
-                
-                current_image = scene_image
+                try:
+                    print(f"Processing scene {i+1}/{len(story['scenes'])}: {scene['heading']}")
+
+                    # -----------------
+                    # AUDIO GENERATION
+                    # -----------------
+                    audio_path = session_dir / f"scene_{i}_audio.wav"
+                    try:
+                        audio_url = generate_audio(scene["text"], recorded_audio_path)
+                        save_audio(audio_url, str(audio_path))
+                        print(f"Audio saved: {audio_path}")
+                    except Exception as audio_err:
+                        print(f"Audio generation failed for scene {i}: {audio_err}. Creating silent placeholder.")
+                        with wave.open(str(audio_path), 'w') as wf:
+                            wf.setnchannels(1)
+                            wf.setsampwidth(2)
+                            wf.setframerate(16000)
+                            silence = struct.pack('<h', 0)
+                            for _ in range(16000):
+                                wf.writeframes(silence)
+
+                    # -----------------
+                    # IMAGE GENERATION
+                    # -----------------
+                    image_path = session_dir / f"scene_{i}_image.jpeg"
+                    try:
+                        scene_image = edit_image(current_image, scene["image_prompt"], aspect_ratio)
+                        scene_image.save(image_path)
+                        print(f"Image saved: {image_path}")
+                        current_image = scene_image
+                    except Exception as img_err:
+                        print(f"Image generation failed for scene {i}: {img_err}. Using previous image as fallback.")
+                        current_image.save(image_path)
+
+                    # Append asset info
+                    scene_assets.append({
+                        "scene_id": i,
+                        "image_path": str(image_path),
+                        "audio_path": str(audio_path)
+                    })
+                except Exception as loop_err:
+                    # Catch any unexpected error so loop continues
+                    print(f"Unexpected error in scene {i}: {loop_err}")
+                    continue
             
             # Store assets in session
             sessions[session_id]["scene_assets"] = scene_assets
